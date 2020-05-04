@@ -60,36 +60,45 @@ server.delete("/api/users/:id", (req, res) => {
 	const id = req.params.id;
 	let user;
 	users.forEach((item) => { if (id === item.id) { user = item } });
-	if(res._hasBody && users){
+	if (res._hasBody && users) {
 		users = users.filter(user => user.id !== id)
-		users.forEach((item) => { 
-			if (id === item.id){ 
+		users.forEach((item) => {
+			if (id === item.id) {
 				res.status(500).json({ "errorMessage": "The users information could not be removed." })
-			} 
+			}
 		});
 		res.status(200).json(users)
-	}else {
+	} else {
 		res.status(404).json({ "message": "The user with the specified ID does not exist." })
 	}
 })
 
-server.patch("/api/users/:id", (req,res)=>{
+server.put("/api/users/:id", (req, res) => {
 	const id = req.params.id;
-	let userFound=false;
+	let userFound = false;
 	const usersInfo = {
 		id: req.body.id,
 		name: req.body.name,
 		bio: req.body.bio
 	};
 	if (res._hasBody && users) {
-		users.forEach((item, index) => { 
-			if(id === item.id){
-				  users[index]=usersInfo
-				  userFound=true
-				} 
+		if (usersInfo.name && usersInfo.bio) {
+			users.forEach((item, index) => {
+				if (id === item.id) {
+					users[index] = usersInfo
+					userFound = true
+				}
 			});
+			if (!userFound) {
+				res.status(404).json({ "message": "The user with the specified ID does not exist." })
+			}else{
+				res.status(200).json(users)
+			}
+		}else{
+			res.status(400).json({ "errorMessage": "The users information is incomplete" })
+		}
 	} else {
-		res.status(500).json({ "errorMessage": "The users information could not be edited." })
+		res.status(500).json({ "errorMessage": "The users information could not be reached." })
 	}
 })
 
